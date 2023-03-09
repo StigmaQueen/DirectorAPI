@@ -179,7 +179,7 @@ namespace DirectorAPI.Controllers
                 repositoridocenteasignatura.Insert(docenteAsignatura);
             }
 
-
+            //Hola soy una prueba
         }
 
         private bool Validar(DocenteDTO docente, out List<string> errors)
