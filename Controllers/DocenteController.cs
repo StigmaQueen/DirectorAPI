@@ -19,6 +19,8 @@ namespace DirectorAPI.Controllers
         Repository<DocenteGrupo> repositoriesGrupoP;
         Repository<Asignatura> repositoriasignatra;
         Repository<Grupo> repositorigrupo;
+        Repository<Periodo> repositoriesPeriodo;
+        Repository<DocenteAsignatura> repositoridocenteasignatura;
         public DocenteController(Sistem21PrimariaContext conetxt)
         {
             repositories = new(conetxt);
@@ -26,6 +28,8 @@ namespace DirectorAPI.Controllers
             repositoriesGrupoP = new(conetxt);
             repositoriasignatra = new(conetxt);
             repositorigrupo = new(conetxt);
+            repositoriesPeriodo = new(conetxt);
+            repositoridocenteasignatura = new(conetxt);
         }
         public IActionResult Get()
         {
@@ -36,6 +40,7 @@ namespace DirectorAPI.Controllers
             }
             return Ok(docentes);
         }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -46,85 +51,139 @@ namespace DirectorAPI.Controllers
             }
             return Ok(docente);
         }
+
+
         [HttpPost]
         public IActionResult Post(DocenteDTO docente)
         {
-
-            if (Validar(docente, out List<string> errors))
+            try
             {
-                Docente docent = new Docente()
+
+
+                if (Validar(docente, out List<string> errors))
                 {
-                    Nombre = docente.Nombre,
-                    ApellidoMaterno = docente.ApellidoMaterno,
-                    ApellidoPaterno = docente.ApellidoPaterno,
-                    Correo = docente.Correo,
-                    Telefono = docente.Telefono,
-                    Edad = docente.Edad,
-                    TipoDocente = docente.TipoDocente,
-                    IdUsuario = docente.IdUsuario,
-                   
+                    Docente docent = new Docente()
+                    {
+                        Nombre = docente.Nombre,
+                        ApellidoMaterno = docente.ApellidoMaterno,
+                        ApellidoPaterno = docente.ApellidoPaterno,
+                        Correo = docente.Correo,
+                        Telefono = docente.Telefono,
+                        Edad = docente.Edad,
+                        TipoDocente = docente.TipoDocente,
+                        IdUsuario = docente.IdUsuario,
+                    };
 
-                };
-                
-                repositories.Insert(docent);
-                PostGrupo(docente);
-                return Ok();
+                    repositories.Insert(docent);
+                    docente.Id = docent.Id;
+                    PostGrupo(docente);
+                    return Ok();
+                }
+                return BadRequest(errors);
             }
-            return BadRequest(errors);
-        }
-        public void PostGrupo( DocenteDTO docente)
-        {
-            var asignatura = repositoriasignatra.Get(docente.IdAsignatura);
-            if (asignatura == null)
-                throw new ApplicationException("Asignatura no encontrada");
-
-            if (docente.TipoDocente == 1 && repositoriesGrupoP.Get().Include(x => x.IdDocenteNavigation).
-                Any(x => x.IdGrupo == docente.IdGrupo && x.IdDocenteNavigation.TipoDocente != 2)&&docente.IdAsignatura==0)
+            catch (Exception ex)
             {
+                return BadRequest(ex.Message);
+            }
+        }
+        public void PostGrupo(DocenteDTO docente)
+        {
+            int maxperiodo = repositoriesPeriodo.Get().Max(x => x.Id);
 
-                var status = BadRequest("Este grupo ya tiene un profesor de grupo asignado");
+
+            if (docente.TipoDocente == 1)
+            {
+                docente.IdAsignatura = 0;
+
+                if (repositoriesGrupoP.Get().Include(x => x.IdDocenteNavigation).
+                    Any(x => x.IdGrupo == docente.IdGrupo && x.IdDocenteNavigation.TipoDocente != 2) && docente.IdAsignatura == 0)
+                {
+
+                    throw new ApplicationException("Este grupo ya tiene un profesor de grupo asignado");
+                }
+                else
+                {
+                    //var grupo = repositoriesGrupoP.Get().Where(x => x.Id == id).FirstOrDefault();
+                    //grupo.IdDocente = docente.IdGrupo;
+
+                    DocenteGrupo docente_grupo = new DocenteGrupo()
+                    {
+                        IdDocente = docente.Id,
+                        IdGrupo = docente.IdGrupo,
+                        IdPeriodo = maxperiodo
+                    };
+
+                    repositoriesGrupoP.Insert(docente_grupo);
+
+
+                    var asignaturasordinarias = repositoriasignatra.Get().Where(x => x.TipoAsignatura == 1);
+
+                    foreach (var asignatura in asignaturasordinarias.ToList())
+                    {
+                        DocenteAsignatura docenteAsignatura = new()
+                        {
+                            IdAsignatura = asignatura.Id,
+                            IdDocente = docente_grupo.IdDocente
+                        };
+
+                        repositoridocenteasignatura.Insert(docenteAsignatura);
+                    }
+
+                }
             }
             else
             {
-                //var grupo = repositoriesGrupoP.Get().Where(x => x.Id == id).FirstOrDefault();
-                //grupo.IdDocente = docente.IdGrupo;
+                docente.IdGrupo = 0;
 
-                DocenteGrupo docente_grupo = new DocenteGrupo()
-                {
-                    IdDocente = docente.Id,
-                    IdGrupo = docente.IdGrupo
-                };
+                //if (docente.TipoDocente == 2 && repositoriesGrupoP.Get().Include(x => x.IdDocenteNavigation).Include(x => x.IdGrupoNavigation).
+                //    Any(x => x.IdGrupo == docente.IdGrupo && x.IdDocenteNavigation.TipoDocente != 1))
+                //{
+                //    throw new ApplicationException("Este grupo ya tiene un profesor de asignatura asignado");
+                //}
+                var asignatura = repositoriasignatra.Get(docente.IdAsignatura);
 
-                repositoriesGrupoP.Insert(docente_grupo);
-            }
+                if (asignatura == null)
+                    throw new ApplicationException("Asignatura no encontrada");
 
-            if (docente.TipoDocente == 2 && repositoriesGrupoP.Get().Include(x => x.IdDocenteNavigation).Include(x=>x.IdGrupoNavigation).
-                Any(x => x.IdGrupo == docente.IdGrupo && x.IdDocenteNavigation.TipoDocente != 1))
-            {
-                
-                var grupos = repositoriesGrupoP.Get().OrderBy(x => x.Id).ToList();
-            
-                if(grupos.Any(x=>x.IdGrupo==docente.IdGrupo))
-                {
-                    var status = BadRequest("Este grupo ya tiene un profesor de materia asignado");
-                }
+                if (repositoridocenteasignatura.Get().Any(x => x.IdAsignatura == docente.IdAsignatura))
+                    throw new ApplicationException("Ya hay un profesor con esa asignatura");
 
-                var gruposactuales = repositorigrupo.Get().OrderBy(x => x.Grado);
 
-                foreach (var item in gruposactuales)
+
+
+
+                //var grupos = repositoriesGrupoP.Get().OrderBy(x => x.Id).ToList();
+
+                //if (grupos.Any(x => x.IdGrupo == docente.IdGrupo))
+                //{
+                //    throw new ApplicationException("Este grupo ya tiene un profesor de materia asignado");
+                //}
+
+                var gruposactuales = repositorigrupo.Get().OrderBy(x => x.Grado).ToList();
+
+                foreach (var item in gruposactuales.ToList())
                 {
                     DocenteGrupo docente_grupo = new DocenteGrupo()
                     {
                         IdDocente = docente.Id,
-                        IdGrupo = item.Id
+                        IdGrupo = item.Id,
+                        IdPeriodo= maxperiodo
                     };
 
                     repositoriesGrupoP.Insert(docente_grupo);
 
                 }
-               
+
+
+                DocenteAsignatura docenteAsignatura = new()
+                {
+                    IdAsignatura = asignatura.Id,
+                    IdDocente = docente.Id
+                };
+
+                repositoridocenteasignatura.Insert(docenteAsignatura);
             }
-           
+
 
         }
 
