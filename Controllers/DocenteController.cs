@@ -149,9 +149,6 @@ namespace DirectorAPI.Controllers
                     throw new ApplicationException("Ya hay un profesor con esa asignatura");
 
 
-
-
-
                 //var grupos = repositoriesGrupoP.Get().OrderBy(x => x.Id).ToList();
 
                 //if (grupos.Any(x => x.IdGrupo == docente.IdGrupo))
@@ -173,8 +170,6 @@ namespace DirectorAPI.Controllers
                     repositoriesGrupoP.Insert(docente_grupo);
 
                 }
-
-
                 DocenteAsignatura docenteAsignatura = new()
                 {
                     IdAsignatura = asignatura.Id,
