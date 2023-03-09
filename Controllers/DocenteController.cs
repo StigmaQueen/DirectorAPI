@@ -75,8 +75,9 @@ namespace DirectorAPI.Controllers
                     };
 
                     repositories.Insert(docent);
-                    docente.Id = docent.Id;
-                    PostGrupo(docente);
+
+                    //docente.Id = docent.Id;
+                    //PostGrupo(docente);
                     return Ok();
                 }
                 return BadRequest(errors);
@@ -86,8 +87,10 @@ namespace DirectorAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        public void PostGrupo(DocenteDTO docente)
+        [HttpPost("AsignarGrupoMateria")]
+        public IActionResult PostG(DocenteDTO docente)
         {
+            var usu = repositories.Get(docente.Id);
             int maxperiodo = repositoriesPeriodo.Get().Max(x => x.Id);
 
 
@@ -99,7 +102,7 @@ namespace DirectorAPI.Controllers
                     Any(x => x.IdGrupo == docente.IdGrupo && x.IdDocenteNavigation.TipoDocente != 2) && docente.IdAsignatura == 0)
                 {
 
-                    throw new ApplicationException("Este grupo ya tiene un profesor de grupo asignado");
+                    return BadRequest("Este grupo ya tiene un profesor de grupo asignado");
                 }
                 else
                 {
@@ -128,8 +131,9 @@ namespace DirectorAPI.Controllers
 
                         repositoridocenteasignatura.Insert(docenteAsignatura);
                     }
-
+                     return Ok();
                 }
+               
             }
             else
             {
@@ -143,10 +147,10 @@ namespace DirectorAPI.Controllers
                 var asignatura = repositoriasignatra.Get(docente.IdAsignatura);
 
                 if (asignatura == null)
-                    throw new ApplicationException("Asignatura no encontrada");
+                    return BadRequest("Asignatura no encontrada");
 
                 if (repositoridocenteasignatura.Get().Any(x => x.IdAsignatura == docente.IdAsignatura))
-                    throw new ApplicationException("Ya hay un profesor con esa asignatura");
+                    return BadRequest("Ya hay un profesor con esa asignatura");
 
 
                 //var grupos = repositoriesGrupoP.Get().OrderBy(x => x.Id).ToList();
@@ -164,7 +168,7 @@ namespace DirectorAPI.Controllers
                     {
                         IdDocente = docente.Id,
                         IdGrupo = item.Id,
-                        IdPeriodo= maxperiodo
+                        IdPeriodo = maxperiodo
                     };
 
                     repositoriesGrupoP.Insert(docente_grupo);
@@ -177,10 +181,105 @@ namespace DirectorAPI.Controllers
                 };
 
                 repositoridocenteasignatura.Insert(docenteAsignatura);
+                return Ok();
             }
-
-            //Hola soy una prueba
         }
+
+        //public void PostGrupo(DocenteDTO docente)
+        //{
+        //    int maxperiodo = repositoriesPeriodo.Get().Max(x => x.Id);
+
+
+        //    if (docente.TipoDocente == 1)
+        //    {
+        //        docente.IdAsignatura = 0;
+
+        //        if (repositoriesGrupoP.Get().Include(x => x.IdDocenteNavigation).
+        //            Any(x => x.IdGrupo == docente.IdGrupo && x.IdDocenteNavigation.TipoDocente != 2) && docente.IdAsignatura == 0)
+        //        {
+
+        //            throw new ApplicationException("Este grupo ya tiene un profesor de grupo asignado");
+        //        }
+        //        else
+        //        {
+        //            //var grupo = repositoriesGrupoP.Get().Where(x => x.Id == id).FirstOrDefault();
+        //            //grupo.IdDocente = docente.IdGrupo;
+
+        //            DocenteGrupo docente_grupo = new DocenteGrupo()
+        //            {
+        //                IdDocente = docente.Id,
+        //                IdGrupo = docente.IdGrupo,
+        //                IdPeriodo = maxperiodo
+        //            };
+
+        //            repositoriesGrupoP.Insert(docente_grupo);
+
+
+        //            var asignaturasordinarias = repositoriasignatra.Get().Where(x => x.TipoAsignatura == 1);
+
+        //            foreach (var asignatura in asignaturasordinarias.ToList())
+        //            {
+        //                DocenteAsignatura docenteAsignatura = new()
+        //                {
+        //                    IdAsignatura = asignatura.Id,
+        //                    IdDocente = docente_grupo.IdDocente
+        //                };
+
+        //                repositoridocenteasignatura.Insert(docenteAsignatura);
+        //            }
+
+        //        }
+        //    }
+        //    else
+        //    {
+        //        docente.IdGrupo = 0;
+
+        //        //if (docente.TipoDocente == 2 && repositoriesGrupoP.Get().Include(x => x.IdDocenteNavigation).Include(x => x.IdGrupoNavigation).
+        //        //    Any(x => x.IdGrupo == docente.IdGrupo && x.IdDocenteNavigation.TipoDocente != 1))
+        //        //{
+        //        //    throw new ApplicationException("Este grupo ya tiene un profesor de asignatura asignado");
+        //        //}
+        //        var asignatura = repositoriasignatra.Get(docente.IdAsignatura);
+
+        //        if (asignatura == null)
+        //            throw new ApplicationException("Asignatura no encontrada");
+
+        //        if (repositoridocenteasignatura.Get().Any(x => x.IdAsignatura == docente.IdAsignatura))
+        //            throw new ApplicationException("Ya hay un profesor con esa asignatura");
+
+
+        //        //var grupos = repositoriesGrupoP.Get().OrderBy(x => x.Id).ToList();
+
+        //        //if (grupos.Any(x => x.IdGrupo == docente.IdGrupo))
+        //        //{
+        //        //    throw new ApplicationException("Este grupo ya tiene un profesor de materia asignado");
+        //        //}
+
+        //        var gruposactuales = repositorigrupo.Get().OrderBy(x => x.Grado).ToList();
+
+        //        foreach (var item in gruposactuales.ToList())
+        //        {
+        //            DocenteGrupo docente_grupo = new DocenteGrupo()
+        //            {
+        //                IdDocente = docente.Id,
+        //                IdGrupo = item.Id,
+        //                IdPeriodo= maxperiodo
+        //            };
+
+        //            repositoriesGrupoP.Insert(docente_grupo);
+
+        //        }
+        //        DocenteAsignatura docenteAsignatura = new()
+        //        {
+        //            IdAsignatura = asignatura.Id,
+        //            IdDocente = docente.Id
+        //        };
+
+        //        repositoridocenteasignatura.Insert(docenteAsignatura);
+        //    }
+
+        //    //Hola soy una prueba
+        //}
 
         private bool Validar(DocenteDTO docente, out List<string> errors)
         {
