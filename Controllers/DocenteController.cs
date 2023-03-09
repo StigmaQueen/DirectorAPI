@@ -86,7 +86,7 @@ namespace DirectorAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        public void PostGrupo(DocenteDTO docente)
+        public void PostGrupo(DocenteAsigDTO docente)
         {
             int maxperiodo = repositoriesPeriodo.Get().Max(x => x.Id);
 
