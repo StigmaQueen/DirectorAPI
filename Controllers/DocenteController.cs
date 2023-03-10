@@ -85,6 +85,30 @@ namespace DirectorAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPut]
+        public IActionResult Put(DocenteDTO docente)
+        {
+
+            var docent = repositories.Get(docente.Id);
+            if (Validar(docente, out List<string> errors))
+            {
+                docent.Nombre = docente.Nombre;
+                docent.ApellidoMaterno = docente.ApellidoMaterno;
+                docent.ApellidoPaterno = docente.ApellidoPaterno;
+                docent.Correo = docente.Correo;
+                docent.Telefono = docente.Telefono;
+                docent.Edad = docente.Edad;
+                docent.TipoDocente = docente.TipoDocente;
+                docent.IdUsuario = docente.IdUsuario;
+                    
+
+                    repositories.Update(docent);
+
+                    return Ok();
+            }
+                return BadRequest(errors);
+           
+        }
         [HttpPost("AsignarGrupoMateria")]
         public IActionResult PostG(DocenteAsigDTO docente)
         {
