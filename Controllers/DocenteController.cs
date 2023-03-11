@@ -75,7 +75,7 @@ namespace DirectorAPI.Controllers
                     };
 
                     repositories.Insert(docent);
-                    
+
                     return Ok();
                 }
                 return BadRequest(errors);
@@ -100,14 +100,14 @@ namespace DirectorAPI.Controllers
                 docent.Edad = docente.Edad;
                 docent.TipoDocente = docente.TipoDocente;
                 docent.IdUsuario = docente.IdUsuario;
-                    
 
-                    repositories.Update(docent);
 
-                    return Ok();
+                repositories.Update(docent);
+
+                return Ok();
             }
-                return BadRequest(errors);
-           
+            return BadRequest(errors);
+
         }
         [HttpPost("AsignarGrupoMateria")]
         public IActionResult PostG(DocenteAsigDTO docente)
@@ -301,6 +301,36 @@ namespace DirectorAPI.Controllers
 
 
         //}
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+
+            var objeto = repositories.Get().Find(id);
+
+            if (objeto == null)
+            {
+                return NotFound();
+            }
+
+            // Buscar los registros asociados en la tabla "TablaSecundaria1"
+            var registrosTablaSecundaria1 = repositoriesGrupoP.Get().Where(r => r.IdDocente == id);
+
+            // Buscar los registros asociados en la tabla "TablaSecundaria2"
+            var registrosTablaSecundaria2 = repositoridocenteasignatura.Get().Where(r => r.IdDocente == id);
+
+            // Eliminar los registros asociados en la tabla "TablaSecundaria1"
+            repositoriesGrupoP.Get().RemoveRange(registrosTablaSecundaria1);
+
+            // Eliminar los registros asociados en la tabla "TablaSecundaria2"
+            repositoridocenteasignatura.Get().RemoveRange(registrosTablaSecundaria2);
+
+            // Guardar los cambios en la base de datos
+
+            repositories.Delete(objeto);
+            return Ok();
+
+        }
 
         private bool Validar(DocenteDTO docente, out List<string> errors)
         {
