@@ -69,7 +69,7 @@ namespace DirectorAPI.Controllers
                 Usuario usuario1 = new Usuario()
                 {
                     Usuario1 = usuario.Usuario1,
-                    Rol = usuario.Rol,
+                    Rol = 2,
                     Contraseña = usuario.Contraseña
 
                 };
@@ -90,7 +90,6 @@ namespace DirectorAPI.Controllers
             if (Validar(usuario, out List<string> errors))
             {
                 usu.Usuario1 = usuario.Usuario1;
-                usu.Rol = usuario.Rol;
                 usu.Contraseña = usuario.Contraseña;
 
                 repositories.Update(usu);
@@ -127,14 +126,8 @@ namespace DirectorAPI.Controllers
             {
                 errors.Add("Ya existe un usuario con el mismo nombre, ingresa uno diferente");
             }
-            if (usuario.Rol == 0)
-            {
-                errors.Add("Asigne un rol al usuario");
-            }
-            if (repositories.Get().Any(x => x.Rol == 1 && usuario.Rol == 1))
-            {
-                errors.Add("Solo puede haber un usuairo Director. Ingresa otro rol");
-            }
+            
+           
             if (string.IsNullOrWhiteSpace(usuario.Contraseña))
             {
                 errors.Add("La contraseña no puede ir vacia. Ingresa una");

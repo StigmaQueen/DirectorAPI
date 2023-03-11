@@ -9,6 +9,5 @@
 
         public string Contraseña { get; set; } = null!;
 
-        public int Rol { get; set; }
     }
 }
