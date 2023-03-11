@@ -13,6 +13,7 @@ namespace DirectorAPI.Controllers
     public class UsuarioController : ControllerBase
     {
         Repository<Usuario> repositories;
+        Repository<Director> directorrepository;
         public UsuarioController(Sistem21PrimariaContext conetxt)
         {
             repositories = new(conetxt);
@@ -35,6 +36,26 @@ namespace DirectorAPI.Controllers
                 return NotFound();
             }
             return Ok(usuario);
+        }
+        [HttpPost("login")]
+        public IActionResult PostLogin(UsuarioDTO usuario)
+        {
+            var u = repositories.Get().FirstOrDefault(x => x.Usuario1 == usuario.Usuario1 && x.Contraseña == usuario.Contraseña);
+            if (u == null || u.Rol != 1)
+            {
+                return NotFound("Usuario o Contraseña Incorrectos");
+            }
+            var d = directorrepository.Get().FirstOrDefault(x => x.Idusuario == u.Id);
+            Director director;
+            director = new Director
+            {
+                Id = d.Id,
+                Nombre = d.Nombre,
+                Telefono = d.Telefono,
+                Direccion = d.Direccion,
+                Idusuario = d.Idusuario
+            };
+            return Ok(d);
         }
         [HttpPost]
         public IActionResult Post(UsuarioDTO usuario)
