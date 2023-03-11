@@ -74,7 +74,7 @@ namespace DirectorAPI.Controllers
 
                 };
                 repositories.Insert(usuario1);
-                return Ok();
+                return Ok(usuario1.Id);
             }
             return BadRequest(errors);
         }
@@ -98,6 +98,7 @@ namespace DirectorAPI.Controllers
             }
             return BadRequest(errors);
         }
+
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

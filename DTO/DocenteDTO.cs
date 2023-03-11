@@ -21,5 +21,7 @@
         public int IdUsuario { get; set; }
         public int IdGrupo { get; set; }
         public int IdAsignatura { get; set; }
+
+        
     }
 }

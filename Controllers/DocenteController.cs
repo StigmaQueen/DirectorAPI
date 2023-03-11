@@ -172,7 +172,11 @@ namespace DirectorAPI.Controllers
                     return BadRequest("Asignatura no encontrada");
 
                 if (repositoridocenteasignatura.Get().Any(x => x.IdAsignatura == docente.IdAsignatura))
-                    return BadRequest("Ya hay un profesor con esa asignatura");
+               
+                   
+                          return BadRequest("Ya hay un profesor con esa asignatura asignado a esos grupos");
+                   
+
 
 
                 //var grupos = repositoriesGrupoP.Get().OrderBy(x => x.Id).ToList();
@@ -181,10 +185,13 @@ namespace DirectorAPI.Controllers
                 //{
                 //    throw new ApplicationException("Este grupo ya tiene un profesor de materia asignado");
                 //}
+                //var gruposSe = docente.IdGrupos.ToList();
 
-                var gruposactuales = repositorigrupo.Get().OrderBy(x => x.Grado).ToList();
 
-                foreach (var item in gruposactuales.ToList())
+                var gruposSeleccionados = repositorigrupo.Get().OrderBy(x => x.Grado).ToList();
+                
+
+                foreach (var item in docente.IdGrupos.ToList())
                 {
                     DocenteGrupo docente_grupo = new DocenteGrupo()
                     {
@@ -206,6 +213,7 @@ namespace DirectorAPI.Controllers
                 return Ok();
             }
         }
+
         //public void PostGrupo(DocenteAsigDTO docente)
         //{
         //    int maxperiodo = repositoriesPeriodo.Get().Max(x => x.Id);
@@ -301,7 +309,6 @@ namespace DirectorAPI.Controllers
 
 
         //}
-
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -331,6 +338,7 @@ namespace DirectorAPI.Controllers
             return Ok();
 
         }
+
 
         private bool Validar(DocenteDTO docente, out List<string> errors)
         {
