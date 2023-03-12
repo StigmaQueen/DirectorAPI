@@ -98,10 +98,10 @@ namespace DirectorAPI.Controllers
             return BadRequest(errors);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpDelete]
+        public IActionResult Delete(UsuarioDTO usu)
         {
-            var usuario = repositories.Get(id);
+            var usuario = repositories.Get(usu.Id);
             
             if (usuario != null)
             {

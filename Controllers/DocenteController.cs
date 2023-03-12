@@ -309,11 +309,11 @@ namespace DirectorAPI.Controllers
 
 
         //}
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpDelete]
+        public IActionResult Delete(DocenteDTO docnt)
         {
 
-            var objeto = repositories.Get().Find(id);
+            var objeto = repositories.Get().Find(docnt.Id);
 
             if (objeto == null)
             {
@@ -321,10 +321,10 @@ namespace DirectorAPI.Controllers
             }
 
             // Buscar los registros asociados en la tabla "TablaSecundaria1"
-            var registrosTablaSecundaria1 = repositoriesGrupoP.Get().Where(r => r.IdDocente == id);
+            var registrosTablaSecundaria1 = repositoriesGrupoP.Get().Where(r => r.IdDocente ==docnt.Id);
 
             // Buscar los registros asociados en la tabla "TablaSecundaria2"
-            var registrosTablaSecundaria2 = repositoridocenteasignatura.Get().Where(r => r.IdDocente == id);
+            var registrosTablaSecundaria2 = repositoridocenteasignatura.Get().Where(r => r.IdDocente ==docnt.Id);
 
             // Eliminar los registros asociados en la tabla "TablaSecundaria1"
             repositoriesGrupoP.Get().RemoveRange(registrosTablaSecundaria1);
