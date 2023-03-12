@@ -17,6 +17,7 @@ namespace DirectorAPI.Controllers
         public UsuarioController(Sistem21PrimariaContext conetxt)
         {
             repositories = new(conetxt);
+            directorrepository= new(conetxt);   
         }
         public IActionResult Get()
         {
@@ -40,12 +41,13 @@ namespace DirectorAPI.Controllers
         [HttpPost("login")]
         public IActionResult PostLogin(UsuarioDTO usuario)
         {
-            var u = repositories.Get().FirstOrDefault(x => x.Usuario1 == usuario.Usuario1 && x.Contraseña == usuario.Contraseña);
-            if (u == null || u.Rol != 1)
+            var usuarioDirector = repositories.Get().FirstOrDefault(x => x.Usuario1 == usuario.Usuario1 && x.Contraseña == usuario.Contraseña);
+            if (usuarioDirector == null || usuarioDirector.Rol != 1)
             {
                 return NotFound("Usuario o Contraseña Incorrectos");
             }
-            var d = directorrepository.Get().FirstOrDefault(x => x.Idusuario == u.Id);
+            //var d = directorrepository.Get().FirstOrDefault(x => x.Idusuario == usuarioDirector.Id);
+            var d = directorrepository.Get(usuarioDirector.Id);
             Director director;
             director = new Director
             {

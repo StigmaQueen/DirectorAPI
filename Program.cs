@@ -1,4 +1,6 @@
 using DirectorAPI.Data;
+using DirectorAPI.Models;
+using DirectorAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 

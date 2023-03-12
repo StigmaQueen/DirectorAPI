@@ -18,7 +18,7 @@ namespace DirectorAPI.Repositories
 
         public T? Get(object v) //Busca uno en especifico.
         {
-            return context.Find<T>(v);
+           return context.Find < T>(v);
         }
 
         public void Insert(T entidad) //Inserta uno.
