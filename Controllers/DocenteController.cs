@@ -171,7 +171,7 @@ namespace DirectorAPI.Controllers
                 if (asignatura == null)
                     return BadRequest("Asignatura no encontrada");
 
-                if (repositoridocenteasignatura.Get().Any(x => x.IdAsignatura == docente.IdAsignatura))
+                if (repositoridocenteasignatura.Get().Any(x => x.IdAsignatura == docente.IdAsignatura &&x.IdDocente!=docente.Id))
                
                    
                           return BadRequest("Ya hay un profesor con esa asignatura asignado a esos grupos");
