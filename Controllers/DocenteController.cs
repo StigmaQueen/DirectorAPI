@@ -60,7 +60,7 @@ namespace DirectorAPI.Controllers
             {
 
 
-                if (ValidarAgregar(docente, out List<string> errors))
+                if (Validar(docente, out List<string> errors))
                 {
                     Docente docent = new Docente()
                     {
@@ -90,7 +90,7 @@ namespace DirectorAPI.Controllers
         {
 
             var docent = repositories.Get(docente.Id);
-            if (ValidarEditar(docente, out List<string> errors))
+            if (Validar(docente, out List<string> errors))
             {
                 docent.Nombre = docente.Nombre;
                 docent.ApellidoMaterno = docente.ApellidoMaterno;
@@ -230,7 +230,7 @@ namespace DirectorAPI.Controllers
         }
 
 
-        private bool ValidarAgregar(DocenteDTO docente, out List<string> errors)
+        private bool Validar(DocenteDTO docente, out List<string> errors)
         {
             errors = new List<string>();
 
@@ -264,37 +264,7 @@ namespace DirectorAPI.Controllers
             }
             return errors.Count == 0;
         }
-        private bool ValidarEditar(DocenteDTO docente, out List<string> errors)
-        {
-            errors = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(docente.Nombre))
-            {
-                errors.Add("Ingrese el nombre del docente");
-            }
-            if (string.IsNullOrWhiteSpace(docente.ApellidoPaterno))
-            {
-                errors.Add("Ingrese el primer apellido del docente");
-            }
-            if (string.IsNullOrWhiteSpace(docente.ApellidoMaterno))
-            {
-                errors.Add("Ingrese el segundo apellido del docente");
-            }
-            if (docente.Edad < 18)
-            {
-                errors.Add("El docente a agregar debe ser mayor de edad");
-            }
-            if (string.IsNullOrWhiteSpace(docente.Telefono))
-            {
-                errors.Add("Ingrse el numero telefonico del docente");
-            }
-            if (docente.TipoDocente < 1 || docente.TipoDocente > 2)
-            {
-                errors.Add("Solo puede haber tipo de docente 1 o 2");
-            }
-          
-            return errors.Count == 0;
-        }
+        
     }
 
 }
