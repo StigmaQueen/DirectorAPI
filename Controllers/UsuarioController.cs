@@ -21,7 +21,7 @@ namespace DirectorAPI.Controllers
         }
         public IActionResult Get()
         {
-            var usuarios = repositories.Get().OrderBy(x => x.Id).ToList();
+            var usuarios = repositories.Get().OrderBy(x => x.Id).Where(x=>x.Rol==2).ToList();
             if(usuarios.Count== 0)
             {
                 return NotFound();
